@@ -63,9 +63,6 @@
     <ClCompile Include="TableDescriptorHeap.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
-    <ClCompile Include="DepthStencilBuffer.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Object\Resource</Filter>
     </ClCompile>
@@ -116,6 +113,9 @@
     </ClCompile>
     <ClCompile Include="Frustum.cpp">
       <Filter>Object\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetGroup.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -194,9 +194,6 @@
     <ClInclude Include="TableDescriptorHeap.h">
       <Filter>Engine</Filter>
     </ClInclude>
-    <ClInclude Include="DepthStencilBuffer.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Object\Resource</Filter>
     </ClInclude>
@@ -248,6 +245,9 @@
     <ClInclude Include="Frustum.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+    <ClInclude Include="RenderTargetGroup.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="d3dcommon.idl">
@@ -273,6 +273,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\Shader\forward.fx">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\Shader\deferred.fx">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>
