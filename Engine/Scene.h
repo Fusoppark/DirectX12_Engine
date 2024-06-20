@@ -13,6 +13,8 @@ public:
 	void FinalUpdate();
 
 	void Render();
+	void RenderLights();
+	void RenderFinal();
 
 	void AddGameObject(shared_ptr<GameObject> gameObject);
 	void RemoveGameObject(shared_ptr<GameObject> gameObject);
@@ -24,5 +26,7 @@ private:
 
 private:
 	// gameObject 검색이 용이하지 않음 : 개선 필요
-	vector<shared_ptr<GameObject>> _gameObjects;
+	vector<shared_ptr<GameObject>>		_gameObjects;
+	vector<shared_ptr<class Camera>>	_cameras;
+	vector<shared_ptr<class Light>>		_lights;
 };

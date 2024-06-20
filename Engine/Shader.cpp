@@ -10,12 +10,12 @@ Shader::~Shader()
 {
 }
 
-void Shader::Init(const wstring& path, ShaderInfo info)
+void Shader::Init(const wstring& path, ShaderInfo info, const string& vs, const string& ps)
 {
 	_info = info;
 
-	CreateVertexShader(path, "VS_Main", "vs_5_0");
-	CreatePixelShader(path, "PS_Main", "ps_5_0");
+	CreateVertexShader(path, vs, "vs_5_0");
+	CreatePixelShader(path, ps, "ps_5_0");
 
 	D3D12_INPUT_ELEMENT_DESC desc[] =
 	{
@@ -49,6 +49,11 @@ void Shader::Init(const wstring& path, ShaderInfo info)
 	case SHADER_TYPE::FORWARD:
 		_pipelineDesc.NumRenderTargets = 1;
 		_pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		break;
+	case SHADER_TYPE::LIGHTING:
+		_pipelineDesc.NumRenderTargets = 2;
+		_pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		_pipelineDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
 		break;
 	}
 
@@ -89,6 +94,19 @@ void Shader::Init(const wstring& path, ShaderInfo info)
 	case DEPTH_STENCIL_TYPE::GREATER_EQUAL:
 		_pipelineDesc.DepthStencilState.DepthEnable = TRUE;
 		_pipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+		break;
+	case DEPTH_STENCIL_TYPE::NO_DEPTH_TEST:
+		_pipelineDesc.DepthStencilState.DepthEnable = FALSE;
+		_pipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		break;
+	case DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE:
+		_pipelineDesc.DepthStencilState.DepthEnable = FALSE;
+		_pipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		break;
+	case DEPTH_STENCIL_TYPE::LESS_NO_WRITE:
+		_pipelineDesc.DepthStencilState.DepthEnable = TRUE;
+		_pipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		_pipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		break;
 	}
 
