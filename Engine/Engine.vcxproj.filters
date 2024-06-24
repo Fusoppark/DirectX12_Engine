@@ -105,9 +105,6 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
-    <ClCompile Include="TestCameraScript.cpp">
-      <Filter>Object\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
@@ -234,9 +231,6 @@
       <Filter>Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
-      <Filter>Object\Component</Filter>
-    </ClInclude>
-    <ClInclude Include="TestCameraScript.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">

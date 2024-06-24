@@ -35,6 +35,12 @@
     <ClInclude Include="Game.h">
       <Filter>소스 파일\Main</Filter>
     </ClInclude>
+    <ClInclude Include="TestScene_01.h">
+      <Filter>소스 파일\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="TestCameraScript.h">
+      <Filter>소스 파일\Main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DirectX12Tutorial.rc">
@@ -57,6 +63,12 @@
       <Filter>소스 파일\Utils</Filter>
     </ClCompile>
     <ClCompile Include="Game.cpp">
+      <Filter>소스 파일\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene_01.cpp">
+      <Filter>소스 파일\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="TestCameraScript.cpp">
       <Filter>소스 파일\Main</Filter>
     </ClCompile>
   </ItemGroup>

@@ -46,6 +46,8 @@ void Scene::FinalUpdate()
 	}
 }
 
+
+
 void Scene::Render()
 {
 	PushLightData();
@@ -122,6 +124,15 @@ void Scene::RenderFinal()
 	GET_SINGLE(Resources)->Get<Material>(L"Final")->PushData();
 	GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle")->Render();
 }
+
+
+
+void Scene::Load(const wstring& path)
+{
+	// 이후 Scene을 File 형태로 관리할 것을 고려
+	return;
+}
+
 
 void Scene::AddGameObject(shared_ptr<GameObject> gameObject)
 {

@@ -34,6 +34,7 @@ void Engine::Init(const WindowInfo& info)
 	GET_SINGLE(Input)->Init(info.hwnd);
 	GET_SINGLE(Timer)->Init();
 	GET_SINGLE(Resources)->Init();
+	GET_SINGLE(SceneManager)->InitLayers();
 
 }
 

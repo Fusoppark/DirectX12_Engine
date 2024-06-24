@@ -48,11 +48,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     GWindowInfo.height = 600;
     GWindowInfo.windowed = true;
 
+    // 게임 생성 및 초기화
     unique_ptr<Game> game = make_unique<Game>();
 
     game->Init(GWindowInfo);
 
-    // 기본 메시지 루프입니다:
     while (true)
     {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) 
@@ -67,7 +67,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
         
-        // 1프레임 계산
+        // 게임 1프레임 계산
         game->Update();
     }
 

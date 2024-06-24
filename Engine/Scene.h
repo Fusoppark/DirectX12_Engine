@@ -5,6 +5,7 @@ class GameObject;
 
 class Scene
 {
+
 public:
 	void Awake();
 	void Start();
@@ -12,10 +13,15 @@ public:
 	void LateUpdate();
 	void FinalUpdate();
 
+public:
 	void Render();
 	void RenderLights();
 	void RenderFinal();
 
+public:
+	void Load(const wstring& path);
+
+public:
 	void AddGameObject(shared_ptr<GameObject> gameObject);
 	void RemoveGameObject(shared_ptr<GameObject> gameObject);
 
