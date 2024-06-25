@@ -45,6 +45,7 @@ using namespace Microsoft::WRL;
 #else
 	#pragma comment(lib, "DirectXTex.lib")
 #endif
+#include "Log.h"
 
 
 
