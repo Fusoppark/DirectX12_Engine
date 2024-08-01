@@ -26,7 +26,7 @@ void TestScene_01::Load(const wstring& path)
 		camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 		uint8 layerIndex = GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI");
 		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true);
-		AddGameObject(camera);
+		AddGameObject3D(camera);
 	}
 #pragma endregion
 
@@ -41,7 +41,7 @@ void TestScene_01::Load(const wstring& path)
 		uint8 layerIndex = GET_SINGLE(SceneManager)->LayerNameToIndex(L"UI");
 		camera->GetCamera()->SetCullingMaskAll(); // ´Ù ²ô°í
 		camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI¸¸ ÂïÀ½
-		AddGameObject(camera);
+		AddGameObject3D(camera);
 	}
 #pragma endregion
 
@@ -64,7 +64,7 @@ void TestScene_01::Load(const wstring& path)
 			meshRenderer->SetMaterial(material);
 		}
 		skybox->AddComponent(meshRenderer);
-		AddGameObject(skybox);
+		AddGameObjectUI(skybox);
 	}
 #pragma endregion
 
@@ -90,7 +90,7 @@ void TestScene_01::Load(const wstring& path)
 			meshRenderer->SetMaterial(material);
 		}
 		obj->AddComponent(meshRenderer);
-		AddGameObject(obj);
+		AddGameObject3D(obj);
 	}
 #pragma endregion
 
@@ -122,7 +122,7 @@ void TestScene_01::Load(const wstring& path)
 			meshRenderer->SetMaterial(material);
 		}
 		sphere->AddComponent(meshRenderer);
-		AddGameObject(sphere);
+		AddGameObjectUI(sphere);
 	}
 #pragma endregion
 
@@ -138,7 +138,7 @@ void TestScene_01::Load(const wstring& path)
 		light->GetLight()->SetAmbient(Vec3(0.1f, 0.f, 0.f));
 		light->GetLight()->SetSpecular(Vec3(0.2f, 0.f, 0.f));
 
-		AddGameObject(light);
+		AddGameObject3D(light);
 	}
 #pragma endregion
 
@@ -155,7 +155,7 @@ void TestScene_01::Load(const wstring& path)
 		light->GetLight()->SetSpecular(Vec3(0.0f, 0.3f, 0.0f));
 		light->GetLight()->SetLightRange(200.f);
 
-		AddGameObject(light);
+		AddGameObject3D(light);
 	}
 #pragma endregion
 
@@ -173,7 +173,7 @@ void TestScene_01::Load(const wstring& path)
 		light->GetLight()->SetLightRange(200.f);
 		light->GetLight()->SetLightAngle(3.14f / 2);
 
-		AddGameObject(light);
+		AddGameObject3D(light);
 	}
 #pragma endregion
 

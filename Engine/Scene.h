@@ -22,17 +22,21 @@ public:
 	void Load(const wstring& path);
 
 public:
-	void AddGameObject(shared_ptr<GameObject> gameObject);
+	void AddGameObject3D(shared_ptr<GameObject> gameObject);
+	void AddGameObjectUI(shared_ptr<GameObject> gameObject);
 	void RemoveGameObject(shared_ptr<GameObject> gameObject);
 
-	const vector<shared_ptr<GameObject>>& GetGameObjects() { return _gameObjects; }
+	const vector<shared_ptr<GameObject>>& GetGameObjects3D() { return _gameObjects3D; }
+	const vector<shared_ptr<GameObject>>& GetGameObjectsUI() { return _gameObjectsUI; }
 
 private:
 	void PushLightData();
 
 private:
-	// gameObject 검색이 용이하지 않음 : 개선 필요
-	vector<shared_ptr<GameObject>>		_gameObjects;
+	
+	vector<shared_ptr<GameObject>>		_gameObjects3D;
+	vector<shared_ptr<GameObject>>		_gameObjectsUI;
+
 	vector<shared_ptr<class Camera>>	_cameras;
 	vector<shared_ptr<class Light>>		_lights;
 };

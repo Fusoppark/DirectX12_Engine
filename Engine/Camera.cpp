@@ -34,6 +34,56 @@ void Camera::FinalUpdate()
 	_frustum.FinalUpdate();
 }
 
+bool Camera::IsVisible(const shared_ptr<GameObject>& obj)
+{
+	if (!(obj->GetMeshRenderer()))
+		return false;
+
+	if (IsCulled(obj->GetLayerIndex()))
+		return false;
+
+	if (obj->GetCheckFrustum())
+	{
+		if (_frustum.ContainsSphere(
+			obj->GetTransform()->GetWorldPosition(),
+			obj->GetTransform()->GetBoundingSphereRadius()) == false)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void Camera::Render_Deferred()
+{
+	shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
+	const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects3D();
+
+	S_MatView = _matView;
+	S_MatProjection = _matProjection;
+
+	for (auto& obj : gameObjects)
+	{
+		if (obj && IsVisible(obj)) obj->GetMeshRenderer()->Render();
+	}
+}
+
+void Camera::Render_ForwardUI()
+{
+	shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
+	const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjectsUI();
+
+	S_MatView = _matView;
+	S_MatProjection = _matProjection;
+
+	for (auto& obj : gameObjects)
+	{
+		if (obj && IsVisible(obj)) obj->GetMeshRenderer()->Render();
+	}
+}
+
+/*
 void Camera::SortGameObject()
 {
 	shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
@@ -72,25 +122,4 @@ void Camera::SortGameObject()
 		}
 	}
 }
-
-void Camera::Render_Deferred()
-{
-	S_MatView = _matView;
-	S_MatProjection = _matProjection;
-
-	for (auto& gameObject : _vecDeferred)
-	{
-		gameObject->GetMeshRenderer()->Render();
-	}
-}
-
-void Camera::Render_Forward()
-{
-	S_MatView = _matView;
-	S_MatProjection = _matProjection;
-
-	for (auto& gameObject : _vecForward)
-	{
-		gameObject->GetMeshRenderer()->Render();
-	}
-}
+*/

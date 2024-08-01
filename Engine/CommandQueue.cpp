@@ -65,7 +65,6 @@ void CommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
 
 	int8 backIndex = _swapChain->GetBackBufferIndex();
 
-	// Buffer Swap 명령어..?
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
 		GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->GetRTTexture(backIndex)->GetTex2D().Get(),
 		D3D12_RESOURCE_STATE_PRESENT, // 화면 출력
