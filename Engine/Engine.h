@@ -47,8 +47,6 @@ private:
 	D3D12_VIEWPORT _viewport = {};
 	D3D12_RECT _scissorRect = {};
 
-	// 내가 언젠가 이거 필요한거 빼고 싹다 버린다... 
-	// 너무 전역이잖아...
 	shared_ptr<Device> _device = make_shared<Device>();
 	shared_ptr<CommandQueue> _cmdQueue = make_shared<CommandQueue>();
 	shared_ptr<SwapChain> _swapChain = make_shared<SwapChain>();

@@ -11,14 +11,14 @@ public:
 	void SetCBV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, CBV_REGISTER reg);
 	void SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg);
 
-	// SetGraphicsRootDescriptorTable : GPU가 해당 Descriptor Table 을 쓸수 있도록 세팅
-	// Mesh 를 여러개 그리기 위한 구조
-	void CommitTable();
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(CBV_REGISTER reg);
+	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(SRV_REGISTER reg);
 
 	ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return _descHeap; }
 
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(CBV_REGISTER reg);
-	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(SRV_REGISTER reg);
+	// SetGraphicsRootDescriptorTable : GPU가 해당 Descriptor Table 을 쓸수 있도록 세팅
+	// Mesh 를 여러개 그리기 위한 구조
+	void CommitTable();
 
 private:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint8 reg);

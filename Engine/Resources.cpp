@@ -247,6 +247,15 @@ shared_ptr<Texture> Resources::CreateTextureFromResource(const wstring& name, Co
 	return texture;
 }
 
+// 쉐이더 리스트
+// Skybox
+// Deferred_Opaque (Deferred)
+// Forward (Forward)
+// Texture (Forward)
+// DirLight
+// PointLight
+// Final
+
 void Resources::CreateDefaultShader()
 {
 	// Skybox
@@ -263,7 +272,7 @@ void Resources::CreateDefaultShader()
 		Add<Shader>(L"Skybox", shader);
 	}
 
-	// Deferred (Deferred)
+	// Deferred_Opaque (Deferred)
 	{
 		ShaderInfo info =
 		{
@@ -272,7 +281,7 @@ void Resources::CreateDefaultShader()
 
 		shared_ptr<Shader> shader = make_shared<Shader>();
 		shader->Init(L"..\\Resource\\Shader\\deferred.fx", info);
-		Add<Shader>(L"Deferred", shader);
+		Add<Shader>(L"Deferred_Opaque", shader);
 	}
 
 	// Forward (Forward)

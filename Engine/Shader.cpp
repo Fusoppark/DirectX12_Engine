@@ -45,6 +45,7 @@ void Shader::Init(const wstring& path, ShaderInfo info, const string& vs, const 
 		_pipelineDesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT; // POSITION
 		_pipelineDesc.RTVFormats[1] = DXGI_FORMAT_R32G32B32A32_FLOAT; // NORMAL
 		_pipelineDesc.RTVFormats[2] = DXGI_FORMAT_R8G8B8A8_UNORM; // COLOR
+		_pipelineDesc.RTVFormats[3] = DXGI_FORMAT_R32G32B32A32_FLOAT; // Depth
 		break;
 	case SHADER_TYPE::FORWARD:
 		_pipelineDesc.NumRenderTargets = 1;

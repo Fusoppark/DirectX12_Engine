@@ -16,7 +16,8 @@ struct VS_IN
 struct VS_OUT
 {
     float4 pos : SV_Position;
-    float2 uv : TEXCOORD;
+    float2 uv : TEXCOORD0;
+    float4 projPos : TEXCOORD1;
     float3 viewPos : POSITION;
     float3 viewNormal : NORMAL;
     float3 viewTangent : TANGENT;
@@ -29,6 +30,8 @@ VS_OUT VS_Main(VS_IN input)
 
     output.pos = float4(input.pos, 1.f);
     output.pos = mul(output.pos, g_matWVP);
+    output.projPos = output.pos;
+    //output.depth = output.pos.z / output.pos.w;
     
     output.uv = input.uv;
     
@@ -45,6 +48,7 @@ struct PS_OUT
     float4 position : SV_Target0;
     float4 normal : SV_Target1;
     float4 color : SV_Target2;
+    float4 depth : SV_Target3;
 };
 
 PS_OUT PS_Main(VS_OUT input) : SV_Target
@@ -68,7 +72,9 @@ PS_OUT PS_Main(VS_OUT input) : SV_Target
 
     output.position = float4(input.viewPos.xyz, 0.f);
     output.normal = float4(viewNormal.xyz, 0.f);
+    output.depth = float4((input.projPos.z) / input.projPos.w, 0.f, 0.f, 0.f);
     output.color = color;
+    
 
     return output;
 }
