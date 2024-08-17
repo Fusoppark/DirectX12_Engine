@@ -2,7 +2,7 @@
 * 그래픽스 공부 목적으로 제작 중인 Deferred Engine 입니다.
 * [S.T.A.L.K.E.R](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker) 게임 엔진을 따라가는 것을 목표로 제작하고 있습니다.
 
-![ScreenShot_1](data/screenshot_1.png)
+![ScreenShot_1](https://github.com/user-attachments/assets/e6f975a9-8fd7-4325-8072-11290a796c70)
 
 
 
