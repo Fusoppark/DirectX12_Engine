@@ -67,49 +67,6 @@ void Scene::FinalUpdate()
 	}
 }
 
-
-
-void Scene::Render()
-{
-	PushLightData();
-
-	// SwapChain Group 초기화
-	int8 backIndex = GEngine->GetSwapChain()->GetBackBufferIndex();
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->ClearRenderTargetView(backIndex);
-
-	// Deferred Group 초기화
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->ClearRenderTargetView();
-
-	// Lighting Group 초기화
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->ClearRenderTargetView();
-
-	// Deferred OMSet
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->OMSetRenderTargets();
-
-	
-	shared_ptr<Camera> mainCamera = _cameras[0];	// 매직 넘버 수정할것
-
-
-	mainCamera->Render_Deferred();
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->WaitTargetToResource();
-
-	RenderLights();
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->WaitTargetToResource();
-
-	RenderFinal();
-
-	mainCamera->Render_ForwardUI();
-
-	for (auto& camera : _cameras)
-	{
-		if (camera == mainCamera)
-			continue;
-
-		camera->Render_ForwardUI();
-	}
-
-}
-
 void Scene::PushLightData()
 {
 	LightParams lightParams = {};
@@ -127,22 +84,110 @@ void Scene::PushLightData()
 	CONST_BUFFER(CONSTANT_BUFFER_TYPE::GLOBAL)->SetGlobalData(&lightParams, sizeof(lightParams));
 }
 
-void Scene::RenderLights()
-{
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->OMSetRenderTargets();
 
-	// 광원을 그린다.
-	for (auto& light : _lights)
+
+void Scene::Render()
+{
+	PushLightData();
+
+	// SwapChain Group 초기화
+	int8 backIndex = GEngine->GetSwapChain()->GetBackBufferIndex();
+	GEngine->GetSwapChainRTGroup()->ClearRenderTargetView(backIndex);
+
+	for (int i = 0; i < DEPTH_PEELING_LAYER_COUNT; i++)
 	{
-		light->Render();
+		/*
+		GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::TRANSFORM)->Clear();
+		GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::MATERIAL)->Clear();
+		GEngine->GetTableDescHeap()->Clear();
+		*/
+
+		GEngine->SetLayerIndex(i);
+		
+		RenderLayer(i);
 	}
+	
+	RenderFinal();
+
+	shared_ptr<Camera> mainCamera = _cameras[0];
+	//mainCamera->Render_ForwardUI();
+
+	for (auto& camera : _cameras)
+	{
+		if (camera == mainCamera)
+			continue;
+
+		camera->Render_ForwardUI();
+	}
+
 }
+
+void Scene::RenderLayer(uint32 layer)
+{
+	RenderObjects (layer);
+
+	RenderLights  (layer);
+
+	RenderLayerEnd(layer);
+}
+
+void Scene::RenderObjects(uint32 layer)
+{
+	shared_ptr<RenderTargetGroup> objectRTGroup 
+		= GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER, layer);
+
+	// Deferred Group 초기화
+	objectRTGroup->ClearRenderTargetView();
+
+	// Deferred OMSet
+	objectRTGroup->OMSetRenderTargets();
+
+	shared_ptr<Camera> mainCamera = _cameras[0];
+	mainCamera->Render_Deferred();
+
+	objectRTGroup->WaitTargetToResource();
+}
+
+
+
+void Scene::RenderLights(uint32 layer)
+{
+	shared_ptr<RenderTargetGroup> lightRTGroup 
+		= GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING, layer);
+
+	// Lighting Group 초기화
+	lightRTGroup->ClearRenderTargetView();
+
+	lightRTGroup->OMSetRenderTargets();
+
+	for (auto& light : _lights){ light->Render(); }
+
+	lightRTGroup->WaitTargetToResource();
+}
+
+
+void Scene::RenderLayerEnd(uint32 layer)
+{
+	shared_ptr<RenderTargetGroup> layerEndRTGroup
+		= GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LAYER_END, layer);
+
+	// Render 결과 초기화
+	layerEndRTGroup->ClearRenderTargetView();
+
+	layerEndRTGroup->OMSetRenderTargets();
+
+	GET_SINGLE(Resources)->Get<Material>(L"Layer_End")->PushData();
+	GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle")->Render();
+
+	layerEndRTGroup->WaitTargetToResource();
+}
+
 
 void Scene::RenderFinal()
 {
 	// Swapchain OMSet
 	int8 backIndex = GEngine->GetSwapChain()->GetBackBufferIndex();
-	GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->OMSetRenderTargets(1, backIndex);
+	GEngine->GetSwapChainRTGroup()->OMSetRenderTargets(1, backIndex);
 
 	GET_SINGLE(Resources)->Get<Material>(L"Final")->PushData();
 	GET_SINGLE(Resources)->Get<Mesh>(L"Rectangle")->Render();

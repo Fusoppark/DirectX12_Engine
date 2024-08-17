@@ -37,7 +37,6 @@ cbuffer TRANSFORM_PARAMS : register(b1)
 
 cbuffer MATERIAL_PARAMS : register(b2)
 {
-    // 실시간으로 다르게 사용할수 있도록 변경할 수 있으려나..?
     int g_int_0;
     int g_int_1;
     int g_int_2;
@@ -56,11 +55,13 @@ cbuffer MATERIAL_PARAMS : register(b2)
     float2 g_vec2_3;
 };
 
+
 Texture2D g_tex_0 : register(t0);
 Texture2D g_tex_1 : register(t1);
 Texture2D g_tex_2 : register(t2);
 Texture2D g_tex_3 : register(t3);
 Texture2D g_tex_4 : register(t4);
+Texture2D g_tex_5 : register(t5);
 
 SamplerState g_sam_0 : register(s0);
 

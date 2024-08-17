@@ -81,6 +81,7 @@ enum class SRV_REGISTER : uint8 {
 	t2,
 	t3,
 	t4,
+	t5,
 
 	END
 };
@@ -92,7 +93,12 @@ enum
 	SRV_REGISTER_COUNT = static_cast<uint8>(SRV_REGISTER::END) - static_cast<uint8>(CBV_REGISTER::END),
 	REGISTER_COUNT = CBV_REGISTER_COUNT + SRV_REGISTER_COUNT,
 };
-	
+
+enum
+{
+	DEPTH_PEELING_LAYER_COUNT = 5,
+	ADDITIONAL_DEPTH_BUFFER_COUNT = 2
+};
 	
 
 struct WindowInfo 

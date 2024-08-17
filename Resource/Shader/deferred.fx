@@ -24,14 +24,21 @@ struct VS_OUT
     float3 viewBinormal : BINORMAL;
 };
 
+float normalizeZ(float z)
+{
+    float output = (z - 1.f) / (1000.f - 1.f);
+
+    return output;
+}
+
 VS_OUT VS_Main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
 
     output.pos = float4(input.pos, 1.f);
     output.pos = mul(output.pos, g_matWVP);
-    output.projPos = output.pos;
-    //output.depth = output.pos.z / output.pos.w;
+    output.projPos = output.pos / output.pos.w;
+    output.projPos.w = output.pos.w;
     
     output.uv = input.uv;
     
@@ -54,10 +61,19 @@ struct PS_OUT
 PS_OUT PS_Main(VS_OUT input) : SV_Target
 {
     PS_OUT output = (PS_OUT) 0;
+    
+    
+    float2 copiedDepthUV = float2((input.projPos.x + 1.f) / 2.f, (input.projPos.y - 1.f) / -2.f);
+    float layerDepth = g_tex_5.Sample(g_sam_0, copiedDepthUV).r;
+    if (layerDepth + 0.001f >= normalizeZ(input.projPos.w))
+        clip(-1);
+   
 
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
     if (g_tex_on_0)
         color = g_tex_0.Sample(g_sam_0, input.uv);
+    
+    color.a = 0.5f;
 
     float3 viewNormal = input.viewNormal;
     if (g_tex_on_1)
@@ -72,11 +88,13 @@ PS_OUT PS_Main(VS_OUT input) : SV_Target
 
     output.position = float4(input.viewPos.xyz, 0.f);
     output.normal = float4(viewNormal.xyz, 0.f);
-    output.depth = float4((input.projPos.z) / input.projPos.w, 0.f, 0.f, 0.f);
     output.color = color;
+    output.depth = float4(normalizeZ(input.projPos.w), 0.f, 0.f, 0.f);
     
 
     return output;
 }
+
+
 
 #endif

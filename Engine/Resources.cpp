@@ -250,6 +250,7 @@ shared_ptr<Texture> Resources::CreateTextureFromResource(const wstring& name, Co
 // 쉐이더 리스트
 // Skybox
 // Deferred_Opaque (Deferred)
+// Deferred_Transparent (Deferred)
 // Forward (Forward)
 // Texture (Forward)
 // DirLight
@@ -282,6 +283,19 @@ void Resources::CreateDefaultShader()
 		shared_ptr<Shader> shader = make_shared<Shader>();
 		shader->Init(L"..\\Resource\\Shader\\deferred.fx", info);
 		Add<Shader>(L"Deferred_Opaque", shader);
+	}
+
+	// Deferred_Transparent (Deferred)
+	{
+		ShaderInfo info =
+		{
+			SHADER_TYPE::DEFERRED,
+			RASTERIZER_TYPE::CULL_NONE
+		};
+
+		shared_ptr<Shader> shader = make_shared<Shader>();
+		shader->Init(L"..\\Resource\\Shader\\deferred.fx", info);
+		Add<Shader>(L"Deferred_Transparent", shader);
 	}
 
 	// Forward (Forward)
@@ -340,6 +354,20 @@ void Resources::CreateDefaultShader()
 		Add<Shader>(L"PointLight", shader);
 	}
 
+	// Layer_Final
+	{
+		ShaderInfo info =
+		{
+			SHADER_TYPE::LIGHTING,
+			RASTERIZER_TYPE::CULL_BACK,
+			DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,
+		};
+
+		shared_ptr<Shader> shader = make_shared<Shader>();
+		shader->Init(L"..\\Resource\\Shader\\lighting.fx", info, "VS_Layer_End", "PS_Layer_End");
+		Add<Shader>(L"Layer_End", shader);
+	}
+
 	// Final
 	{
 		ShaderInfo info =
@@ -389,14 +417,27 @@ void Resources::CreateDefaultMaterial()
 		Add<Material>(L"PointLight", material);
 	}
 
-	// Final
+	// Layer_Final
 	{
-		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Final");
+		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Layer_End");
 		shared_ptr<Material> material = make_shared<Material>();
 		material->SetShader(shader);
 		material->SetTexture(0, GET_SINGLE(Resources)->Get<Texture>(L"DiffuseTarget"));
 		material->SetTexture(1, GET_SINGLE(Resources)->Get<Texture>(L"DiffuseLightTarget"));
 		material->SetTexture(2, GET_SINGLE(Resources)->Get<Texture>(L"SpecularLightTarget"));
+		Add<Material>(L"Layer_End", material);
+	}
+
+	// Final
+	{
+		shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Final");
+		shared_ptr<Material> material = make_shared<Material>();
+		material->SetShader(shader);
+		material->SetTexture(0, GET_SINGLE(Resources)->Get<Texture>(L"LayerRenderResult_0"));
+		material->SetTexture(1, GET_SINGLE(Resources)->Get<Texture>(L"LayerRenderResult_1"));
+		material->SetTexture(2, GET_SINGLE(Resources)->Get<Texture>(L"LayerRenderResult_2"));
+		material->SetTexture(3, GET_SINGLE(Resources)->Get<Texture>(L"LayerRenderResult_3"));
+		material->SetTexture(4, GET_SINGLE(Resources)->Get<Texture>(L"LayerRenderResult_4"));
 		Add<Material>(L"Final", material);
 	}
 }

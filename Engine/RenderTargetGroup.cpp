@@ -44,6 +44,28 @@ void RenderTargetGroup::Create(RENDER_TARGET_GROUP_TYPE groupType, vector<Render
 	}
 }
 
+void RenderTargetGroup::ChangeRTTexture(uint32 index, shared_ptr<Texture> texture)
+{
+	assert(index < _rtCount);
+
+	_rtVec[index].target = texture;
+
+	uint32 destSize = 1;
+	D3D12_CPU_DESCRIPTOR_HANDLE destHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_rtvHeapBegin, index * _rtvHeapSize);
+
+	uint32 srcSize = 1;
+	ComPtr<ID3D12DescriptorHeap> srcRtvHeapBegin = texture->GetRTV();
+	D3D12_CPU_DESCRIPTOR_HANDLE srcHandle = srcRtvHeapBegin->GetCPUDescriptorHandleForHeapStart();
+
+	DEVICE->CopyDescriptors(1, &destHandle, &destSize, 1, &srcHandle, &srcSize, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	_targetToResource[index] = CD3DX12_RESOURCE_BARRIER::Transition(texture->GetTex2D().Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON);
+
+	_resourceToTarget[index] = CD3DX12_RESOURCE_BARRIER::Transition(texture->GetTex2D().Get(),
+		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET);
+}
+
 void RenderTargetGroup::OMSetRenderTargets(uint32 count, uint32 offset)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(_rtvHeapBegin, offset * _rtvHeapSize);
@@ -72,6 +94,20 @@ void RenderTargetGroup::ClearRenderTargetView()
 	}
 
 	CMD_LIST->ClearDepthStencilView(_dsvHeapBegin, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
+}
+
+void RenderTargetGroup::SetRTTexture(uint32 index, shared_ptr<Texture> texture, float clearColor[4])
+{
+	assert(index < _rtCount);
+
+	_rtVec[index].target = nullptr;
+	_rtVec[index].target = texture;
+
+	if (clearColor == nullptr) { return; }
+	for (int i = 0; i < 4; i++)
+	{
+		_rtVec[index].clearColor[i] = clearColor[i];
+	}
 }
 
 void RenderTargetGroup::WaitTargetToResource()

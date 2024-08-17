@@ -15,7 +15,12 @@ public:
 
 public:
 	void Render();
-	void RenderLights();
+
+	void RenderLayer(uint32 layer);
+	void RenderObjects(uint32 layer);
+	void RenderLights(uint32 layer);
+	void RenderLayerEnd(uint32 layer);
+
 	void RenderFinal();
 
 public:

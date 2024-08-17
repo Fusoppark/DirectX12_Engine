@@ -29,13 +29,19 @@ public:
 	shared_ptr<TableDescriptorHeap> GetTableDescHeap() { return _tableDescHeap; }
 
 	shared_ptr<ConstantBuffer> GetConstantBuffer(CONSTANT_BUFFER_TYPE type) { return _constantBuffers[static_cast<uint8>(type)]; }
-	shared_ptr<RenderTargetGroup> GetRTGroup(RENDER_TARGET_GROUP_TYPE type) { return _rtGroups[static_cast<uint8>(type)]; }
+	shared_ptr<RenderTargetGroup> GetSwapChainRTGroup() { return _swapChainRTGroup; }
+	shared_ptr<RenderTargetGroup> GetRTGroup(RENDER_TARGET_GROUP_TYPE type, uint32 layer);
+
 public:
 	void Render();
 	void RenderBegin();
 	void RenderEnd();
 
 	void ResizeWindow(int32 width, int32 height);
+
+public:
+	void SetLayerIndex(uint32 layer) { curLayerIndex = layer; }
+	shared_ptr<Texture> GetCurDepthReadTexture();
 
 private:
 	void ShowFps();
@@ -52,9 +58,23 @@ private:
 	shared_ptr<SwapChain> _swapChain = make_shared<SwapChain>();
 	shared_ptr<RootSignature> _rootSignature = make_shared<RootSignature>();
 	shared_ptr<TableDescriptorHeap> _tableDescHeap = make_shared<TableDescriptorHeap>();
+
+private:
 	
 	vector<shared_ptr<ConstantBuffer>> _constantBuffers;
-	array<shared_ptr<RenderTargetGroup>, RENDER_TARGET_GROUP_COUNT> _rtGroups;
+
+	uint32 curLayerIndex = 0;
+	shared_ptr<RenderTargetGroup> _swapChainRTGroup;
+	shared_ptr<Texture> _zeroDepthTexture;
+	array<shared_ptr<RenderTargetGroup>, DEPTH_PEELING_LAYER_COUNT> _objectRTGroups;
+	array<shared_ptr<RenderTargetGroup>, DEPTH_PEELING_LAYER_COUNT> _lightRTGroups;
+	array<shared_ptr<RenderTargetGroup>, DEPTH_PEELING_LAYER_COUNT> _layerRTGroups;
+	//array<shared_ptr<RenderTargetGroup>, RENDER_TARGET_GROUP_COUNT> _rtGroups;
+
+	// Depth Peeling
+	//array<shared_ptr<Texture>, DEPTH_PEELING_LAYER_COUNT> _layeredRenderResults;
+	//array<shared_ptr<Texture>, DEPTH_PEELING_LAYER_COUNT> _peeledDepthBuffers;
+	//array<shared_ptr<Texture>, ADDITIONAL_DEPTH_BUFFER_COUNT> _peeledDepthBuffers;
 
 };
 

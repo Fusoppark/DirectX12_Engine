@@ -101,9 +101,35 @@ void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 co
 	_constantBuffers.push_back(buffer);
 }
 
+shared_ptr<RenderTargetGroup> Engine::GetRTGroup(RENDER_TARGET_GROUP_TYPE type, uint32 layer)
+{
+	assert(layer < DEPTH_PEELING_LAYER_COUNT);
+	
+	switch (type)
+	{
+		case (RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN) : return GetSwapChainRTGroup();
+		case (RENDER_TARGET_GROUP_TYPE::G_BUFFER)   : return _objectRTGroups[layer];
+		case (RENDER_TARGET_GROUP_TYPE::LIGHTING)   : return _lightRTGroups[layer];
+		case (RENDER_TARGET_GROUP_TYPE::LAYER_END)  : return _layerRTGroups[layer];
+		default : return nullptr;
+	}
+}
+
+shared_ptr<Texture> Engine::GetCurDepthReadTexture()
+{
+	if (curLayerIndex == 0)
+	{
+		return _zeroDepthTexture;
+	}
+	else
+	{
+		return _objectRTGroups[curLayerIndex - 1]->GetRTTexture(3);
+	}
+}
+
 void Engine::CreateRenderTargetGroups()
 {
-	// DepthStencil : 굳이 Resources 가 관리해야 돼..?
+	// DepthStencil
 	shared_ptr<Texture> dsTexture = GET_SINGLE(Resources)->CreateTexture(L"DepthStencil",
 		DXGI_FORMAT_D32_FLOAT, _window.width, _window.height,
 		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -122,53 +148,97 @@ void Engine::CreateRenderTargetGroups()
 			rtVec[i].target = GET_SINGLE(Resources)->CreateTextureFromResource(name, resource);
 		}
 
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)] = make_shared<RenderTargetGroup>();
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)]->Create(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN, rtVec, dsTexture);
+		_swapChainRTGroup = make_shared<RenderTargetGroup>();
+		_swapChainRTGroup->Create(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN, rtVec, dsTexture);
+	}
+
+	// Depth Peeling 용, 첫 layer가 depth 비교용으로 쓸 검은 texture
+	{
+		_zeroDepthTexture = GET_SINGLE(Resources)->CreateTexture(L"InitialZeroDepthBuffer",
+			DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, Vec4(0.f, 0.f, 0.f, 0.f));
 	}
 
 	// Deferred Group
 	{
-		vector<RenderTarget> rtVec(RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT);
+		auto positionRT = GET_SINGLE(Resources)->CreateTexture(L"PositionTarget",
+				DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-		rtVec[0].target = GET_SINGLE(Resources)->CreateTexture(L"PositionTarget",
-			DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		auto normalRT = GET_SINGLE(Resources)->CreateTexture(L"NormalTarget",
+				DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-		rtVec[1].target = GET_SINGLE(Resources)->CreateTexture(L"NormalTarget",
-			DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		auto diffuseRT = GET_SINGLE(Resources)->CreateTexture(L"DiffuseTarget",
+				DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-		rtVec[2].target = GET_SINGLE(Resources)->CreateTexture(L"DiffuseTarget",
-			DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		for (uint32 i = 0; i < DEPTH_PEELING_LAYER_COUNT; i++)
+		{
+			vector<RenderTarget> rtVec(RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT);
 
-		rtVec[3].target = GET_SINGLE(Resources)->CreateTexture(L"DepthTarget",
-			DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+			rtVec[0].target = positionRT;
+			rtVec[1].target = normalRT;
+			rtVec[2].target = diffuseRT;
 
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)] = make_shared<RenderTargetGroup>();
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)]->Create(RENDER_TARGET_GROUP_TYPE::G_BUFFER, rtVec, dsTexture);
+			wstring textureName = L"AdditionalDepthBuffer_" + std::to_wstring(i);
+			rtVec[3].target = GET_SINGLE(Resources)->CreateTexture(textureName,
+				DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, Vec4(1.f, 0.f, 0.f, 0.f));
+			rtVec[3].clearColor[0] = 1.0f;
+
+			_objectRTGroups[i] = make_shared<RenderTargetGroup>();
+			_objectRTGroups[i]->Create(RENDER_TARGET_GROUP_TYPE::G_BUFFER, rtVec, dsTexture);
+		}
 	}
 
 	// Lighting Group
 	{
-		vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
+		auto lightDiffuseRT = GET_SINGLE(Resources)->CreateTexture(L"DiffuseLightTarget",
+				DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-		rtVec[0].target = GET_SINGLE(Resources)->CreateTexture(L"DiffuseLightTarget",
-			DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		auto lightSpecularRT = GET_SINGLE(Resources)->CreateTexture(L"SpecularLightTarget",
+				DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-		rtVec[1].target = GET_SINGLE(Resources)->CreateTexture(L"SpecularLightTarget",
-			DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
-			CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+		for (uint32 i = 0; i < DEPTH_PEELING_LAYER_COUNT; i++)
+		{
+			vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
 
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)] = make_shared<RenderTargetGroup>();
-		_rtGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, dsTexture);
+			rtVec[0].target = lightDiffuseRT;
+			rtVec[1].target = lightSpecularRT;
+
+			_lightRTGroups[i] = make_shared<RenderTargetGroup>();
+			_lightRTGroups[i]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, dsTexture);
+		}
+
 	}
+
+	// Layer Final Group
+	{
+		for (uint32 i = 0; i < DEPTH_PEELING_LAYER_COUNT; i++)
+		{
+			vector<RenderTarget> rtVec(RENDER_TARGET_LAYER_GROUP_MEMBER_COUNT);
+
+			wstring textureName = L"LayerRenderResult_" + std::to_wstring(i);
+
+			rtVec[0].target = GET_SINGLE(Resources)->CreateTexture(textureName,
+				DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+				CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+				D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+			_layerRTGroups[i] = make_shared<RenderTargetGroup>();
+			_layerRTGroups[i]->Create(RENDER_TARGET_GROUP_TYPE::LAYER_END, rtVec, dsTexture);
+		}
+	}
+
+	
 }

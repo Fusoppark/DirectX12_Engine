@@ -6,6 +6,7 @@ enum class RENDER_TARGET_GROUP_TYPE : uint8
 	SWAP_CHAIN, // BACK_BUFFER, FRONT_BUFFER
 	G_BUFFER, // POSITION, NORMAL, COLOR, Depth
 	LIGHTING, // DIFFUSE LIGHT, SPECULAR LIGHT
+	LAYER_END, // RENDER RESULT
 	END,
 };
 
@@ -13,6 +14,7 @@ enum
 {
 	RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT = 4,
 	RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT = 2,
+	RENDER_TARGET_LAYER_GROUP_MEMBER_COUNT = 1,
 	RENDER_TARGET_GROUP_COUNT = static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::END)
 };
 
@@ -22,12 +24,11 @@ struct RenderTarget
 	float clearColor[4];
 };
 
-// 왜 Depth Stencil 버퍼는 따로?
-
 class RenderTargetGroup
 {
 public:
 	void Create(RENDER_TARGET_GROUP_TYPE groupType, vector<RenderTarget>& rtVec, shared_ptr<Texture> dsTexture);
+	void ChangeRTTexture(uint32 index, shared_ptr<Texture> texture);
 
 	void OMSetRenderTargets(uint32 count, uint32 offset);
 	void OMSetRenderTargets();
@@ -37,6 +38,7 @@ public:
 
 	shared_ptr<Texture> GetRTTexture(uint32 index) { return _rtVec[index].target; }
 	shared_ptr<Texture> GetDSTexture() { return _dsTexture; }
+	void SetRTTexture(uint32 index, shared_ptr<Texture> texture, float clearColor[4] = nullptr);
 
 	void WaitTargetToResource();
 	void WaitResourceToTarget();
@@ -57,3 +59,4 @@ private:
 	D3D12_RESOURCE_BARRIER			_targetToResource[8];
 	D3D12_RESOURCE_BARRIER			_resourceToTarget[8];
 };
+
