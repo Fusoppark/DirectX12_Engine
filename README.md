@@ -1,6 +1,6 @@
 # DX12 Deferred Engine
 * 그래픽스 공부 목적으로 제작 중인 Deferred Engine 입니다.
-* [S.T.A.L.K.E.R](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker) 게임 엔진을 따라가는 것을 목표로 제작하고 있습니다.
+* [S.T.A.L.K.E.R](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker) 게임 엔진에 포함된 기능들을 추가하는 것을 목표로 제작하고 있습니다.
 
 ![ScreenShot_1](https://github.com/user-attachments/assets/e6f975a9-8fd7-4325-8072-11290a796c70)
 
@@ -19,32 +19,52 @@
 
 
 ## 주요 기능
-### Transparent(불투명) Object Rendering (24.08.17 추가)
+#### Transparent(불투명) Object Rendering (24.08.17 추가)
 >[Depth Peeling](https://my.eng.utah.edu/~cs5610/handouts/order_independent_transparency.pdf)(2001, Cass Everitt)을 사용해서 불투명한 오브젝트도 렌더할 수 있도록 했습니다.
 Depth 정보 저장용으로 RenderTarget을 추가해서 Depth Buffer를 대신했고,
 전체 렌더 패스를 5번 반복하여 5개의 Layer를 Alpha Blend해서 최종 렌더 결과를 도출하도록 제작했습니다.
 
 <br/>
   
-### 부가 기능
+#### 부가 기능
 * 24.06.25 : Log 함수를 추가했습니다.
 
 <br/>
 
-### 기타 로직/오류 수정
+#### 기타 로직/오류 수정
 * 24.08.01 : Forward / Deferred 로 그려질 오브젝트를 매 프레임마다 Sort하는 로직을 수정했습니다.
 * 24.06.23 : Cull None 으로 설정되어 Lighting이 중복 연산되는 버그를 수정했습니다.
 
 
-<br/><br/>
+<br/>
+<br/>
 
+## 앞으로 추가할 기능
+#### 발견된 오류 사항
+* Point Light, SpotLight 가 제대로 렌더링되지 않고 있습니다.
+
+<br/>
+
+#### 렌더링 기능
+* Shadow Rendering
+* Depth Peeling으로 변경된 렌더 패스의 최적화
+
+<br/>
+
+#### 엔진 기능
+* Mesh File Open 및 활용 기능 추가
+* String 이 아닌 UID를 통한 Texture, Shader 검색
+
+<br/>
+<br/>
 
 
 ## 개발 환경
 Windows 10, Visual Studio 2022 Community Edition에서 제작했습니다.
 
 
-<br/><br/>
+<br/>
+<br/>
 
 
 
