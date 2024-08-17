@@ -19,7 +19,7 @@
 
 
 ## 주요 기능
-#### Transparent(불투명) Object Rendering (24.08.17 추가)
+#### Transparent(반투명) Object Rendering (24.08.17 추가)
 >[Depth Peeling](https://my.eng.utah.edu/~cs5610/handouts/order_independent_transparency.pdf)(2001, Cass Everitt)을 사용해서 불투명한 오브젝트도 렌더할 수 있도록 했습니다.
 Depth 정보 저장용으로 RenderTarget을 추가해서 Depth Buffer를 대신했고,
 전체 렌더 패스를 5번 반복하여 5개의 Layer를 Alpha Blend해서 최종 렌더 결과를 도출하도록 제작했습니다.
