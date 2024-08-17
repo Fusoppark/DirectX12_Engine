@@ -1,6 +1,6 @@
 # DX12 Deferred Engine
-그래픽스 공부 목적으로 제작 중인 Deferred Engine 입니다.
-[S.T.A.L.K.E.R](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker) 게임 엔진을 따라가는 것을 목표로 제작하고 있습니다.
+* 그래픽스 공부 목적으로 제작 중인 Deferred Engine 입니다.
+* [S.T.A.L.K.E.R](https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-9-deferred-shading-stalker) 게임 엔진을 따라가는 것을 목표로 제작하고 있습니다.
 
 ![Helios](data/screenshot_1.jpg)
 
@@ -9,8 +9,8 @@
 
 
 ## 기능 설명
-인프런 [DX12 강의](https://www.inflearn.com/course/%EC%96%B8%EB%A6%AC%EC%96%BC-3d-mmorpg-2/dashboard)에서 시작하여 현재는 S.T.A.L.K.E.R 게임을 참고하며 기능을 추가하고 있습니다.
-아래는 추가한 기능 목록입니다.
+* 인프런 [DX12 강의](https://www.inflearn.com/course/%EC%96%B8%EB%A6%AC%EC%96%BC-3d-mmorpg-2/dashboard)에서 시작하여 현재는 S.T.A.L.K.E.R 게임을 참고하며 기능을 추가하고 있습니다.
+* 아래는 추가한 기능 목록입니다.
 
 
 
