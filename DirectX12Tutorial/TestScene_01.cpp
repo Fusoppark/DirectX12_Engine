@@ -48,6 +48,7 @@ void TestScene_01::Load(const wstring& path)
 
 #pragma region SkyBox
 	{
+		
 		shared_ptr<GameObject> skybox = make_shared<GameObject>();
 		skybox->AddComponent(make_shared<Transform>());
 		skybox->SetCheckFrustum(false);
@@ -66,6 +67,7 @@ void TestScene_01::Load(const wstring& path)
 		}
 		skybox->AddComponent(meshRenderer);
 		AddGameObjectUI(skybox);
+		
 	}
 #pragma endregion
 
@@ -86,9 +88,9 @@ void TestScene_01::Load(const wstring& path)
 				meshRenderer->SetMesh(sphereMesh);
 			}
 			{
-				shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Deferred_Opaque");
-				shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Leather", L"..\\Resource\\Texture\\Metal_Panel_basecolor.jpg");
-				shared_ptr<Texture> texture2 = GET_SINGLE(Resources)->Load<Texture>(L"Leather_Normal", L"..\\Resource\\Texture\\Metal_Panel_normal.jpg");
+				shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Deferred_Transparent");
+				shared_ptr<Texture> texture = GET_SINGLE(Resources)->Load<Texture>(L"Glass", L"..\\Resource\\Texture\\Glass_Window_basecolor.jpg");
+				shared_ptr<Texture> texture2 = GET_SINGLE(Resources)->Load<Texture>(L"Glass_Normal", L"..\\Resource\\Texture\\Glass_Window_normal.jpg");
 				shared_ptr<Material> material = make_shared<Material>();
 				material->SetShader(shader);
 				material->SetTexture(0, texture);
@@ -119,10 +121,18 @@ void TestScene_01::Load(const wstring& path)
 			shared_ptr<Shader> shader = GET_SINGLE(Resources)->Get<Shader>(L"Texture");
 
 			shared_ptr<Texture> texture;
-			if (i < 4)
-				texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->GetRTTexture(i);
-			else
-				texture = GEngine->GetRTGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->GetRTTexture(i - 4);
+
+			if (i < 5)
+			{
+				//wstring textureName = L"AdditionalDepthBuffer_" + std::to_wstring(i);
+				wstring textureName = L"LayerRenderResult_" + std::to_wstring(i);
+				texture = GET_SINGLE(Resources)->Get<Texture>(textureName);
+			}
+			else 
+			{
+				texture = GET_SINGLE(Resources)->Get<Texture>(L"InitialZeroDepthBuffer");
+			}
+			
 
 			shared_ptr<Material> material = make_shared<Material>();
 			material->SetShader(shader);
@@ -143,8 +153,8 @@ void TestScene_01::Load(const wstring& path)
 		light->GetLight()->SetLightDirection(Vec3(0, 0, 1.f));
 		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT);
 		light->GetLight()->SetDiffuse(Vec3(1.f, 0.8f, 0.8f));
-		light->GetLight()->SetAmbient(Vec3(0.1f, 0.08f, 0.08f));
-		light->GetLight()->SetSpecular(Vec3(0.2f, 0.16f, 0.16f));
+		light->GetLight()->SetAmbient(Vec3(0.8f, 0.64f, 0.64f));
+		light->GetLight()->SetSpecular(Vec3(0.5f, 0.25f, 0.25f));
 
 		AddGameObject3D(light);
 	}
@@ -157,10 +167,10 @@ void TestScene_01::Load(const wstring& path)
 		light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 150.f));
 		light->AddComponent(make_shared<Light>());
 		//light->GetLight()->SetLightDirection(Vec3(-1.f, -1.f, 0));
-		light->GetLight()->SetLightType(LIGHT_TYPE::POINT_LIGHT);
-		light->GetLight()->SetDiffuse(Vec3(0.0f, 0.5f, 0.0f));
-		light->GetLight()->SetAmbient(Vec3(0.0f, 0.3f, 0.0f));
-		light->GetLight()->SetSpecular(Vec3(0.0f, 0.3f, 0.0f));
+		light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL_LIGHT); // юс╫ц
+		light->GetLight()->SetDiffuse(Vec3(0.0f, 1.0f, 1.0f));
+		light->GetLight()->SetAmbient(Vec3(0.0f, 0.8f, 0.8f));
+		light->GetLight()->SetSpecular(Vec3(0.0f, 0.3f, 0.3f));
 		light->GetLight()->SetLightRange(200.f);
 
 		AddGameObject3D(light);
