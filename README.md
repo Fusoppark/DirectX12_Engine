@@ -40,11 +40,6 @@ Depth 정보 저장용으로 RenderTarget을 추가해서 Depth Buffer를 대신
 <br/>
 
 ## 앞으로 추가할 기능
-#### 발견된 오류 사항
-* Point Light, SpotLight 가 제대로 렌더링되지 않고 있습니다.
-
-<br/>
-
 #### 렌더링 기능
 * Shadow Rendering
 * Depth Peeling으로 변경된 렌더 패스의 최적화
@@ -54,6 +49,11 @@ Depth 정보 저장용으로 RenderTarget을 추가해서 Depth Buffer를 대신
 #### 엔진 기능
 * Mesh File Open 및 활용 기능 추가
 * String 이 아닌 UID를 통한 Texture, Shader 검색
+
+<br/>
+
+#### 발견된 오류 사항
+* Point Light, SpotLight 가 제대로 렌더링되지 않고 있습니다.
 
 <br/>
 <br/>
